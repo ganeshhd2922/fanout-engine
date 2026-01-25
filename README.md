@@ -1,4 +1,4 @@
-Fanout Engine – High Throughput Event Processing
+#Fanout Engine – High Throughput Event Processing
 Overview
 
 This project implements a high-throughput fanout engine that delivers events to multiple consumers in parallel.
@@ -135,7 +135,7 @@ Anonymous consumers in tests for flexibility
 
 Graceful shutdown to avoid race conditions in tests
 
-Future Improvements (Optional)
+Future Improvements
 
 Persist DLQ events to file or database
 
