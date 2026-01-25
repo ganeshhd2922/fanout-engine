@@ -1,156 +1,160 @@
-# Fanout Engine – High Throughput Event Processing
-Overview
+# 🚀 Fanout Engine – High Throughput Event Processing
+
+A concurrent, fault-tolerant fanout engine built in Java using Maven.
+
+## 📌 Overview
 
 This project implements a high-throughput fanout engine that delivers events to multiple consumers in parallel.
-The system is designed to be reliable, fault-tolerant, and testable, with built-in retry logic and Dead Letter Queue (DLQ) handling.
+Each consumer processes events independently, ensuring reliability even in the presence of failures.
 
-Each published event is independently delivered to all registered consumers, even in the presence of transient failures.
+The system includes:
 
-# Key Features
+Retry handling with exponential backoff
 
-Parallel fanout using a configurable thread pool
+Dead Letter Queue (DLQ) for failed events
 
-Retry mechanism with configurable retries and exponential backoff
+Clean separation of concerns and testability
 
-Dead Letter Queue (DLQ) handling for failed events
+## ✨ Key Features
 
-Graceful shutdown with proper synchronization
+✅ Parallel fanout using configurable thread pool
+✅ Independent event delivery per consumer
+✅ Retry mechanism with exponential backoff
+✅ Dead Letter Queue (DLQ) handling
+✅ Graceful shutdown
+✅ Maven-based build & execution
+✅ Unit tested with JUnit
 
-Unit tests covering asynchronous behavior
-
-Clean, modular Maven-based project structure
-
-# Architecture
+## 🧠 High-Level Architecture
 Event
-  │
-  ▼
+  |
+  v
 FanoutEngine
-  ├── Consumer A (Thread 1)
-  ├── Consumer B (Thread 2)
-  ├── Consumer C (Thread 3)
-  │
-  └── RetryExecutor
-        └── RetryPolicy
-              ├── maxRetries
-              ├── initialDelayMs
-              └── backoffMultiplier
+  |-- Consumer A  (Thread Pool)
+  |-- Consumer B  (Thread Pool)
+  |-- Consumer C  (Thread Pool)
+          |
+          v
+     RetryExecutor
+          |
+          v
+      RetryPolicy
 
-# How Fanout Works
+## 🔁 How Fanout Works
 
-An event is published to the FanoutEngine.
+An event is published to the FanoutEngine
 
-The engine submits a task for each consumer to an ExecutorService.
+The engine submits one task per consumer to an ExecutorService
 
-Each consumer processes the event independently and concurrently.
+Consumers process the event concurrently
 
-Failures are retried according to the configured retry policy.
+Failures are retried based on retry policy
 
-If all retries fail, the event is sent to the Dead Letter Queue (DLQ).
+After all retries fail, the event is sent to DLQ
 
-Retry & Backoff Strategy
+🔄 Retry & Backoff Strategy
 
-The retry mechanism is implemented using two components:
+Retry logic is implemented using two components:
 
-RetryPolicy – defines retry configuration.
+🧩 RetryPolicy
 
-RetryExecutor – executes tasks with retry logic.
+Defines retry configuration:
 
-Retry Policy Parameters
+maxRetries
 
-maxRetries – number of retry attempts
+initialDelayMs
 
-initialDelayMs – initial delay before retry
+backoffMultiplier
 
-backoffMultiplier – exponential backoff factor
-
-# Example
 RetryPolicy retryPolicy = new RetryPolicy(3, 100, 2.0);
 
-Dead Letter Queue (DLQ)
+⚙️ RetryExecutor
 
-If an event fails to process after all retry attempts:
+Executes consumer logic with retry & backoff automatically applied.
 
-The event is logged as a DLQ entry.
+☠️ Dead Letter Queue (DLQ)
 
-The consumer name and event ID are recorded for debugging and analysis.
+If an event fails after all retries:
 
-# Example Log
+Event is marked as failed
+
+Consumer name and event ID are logged
+
+Other consumers remain unaffected
+
+📄 Example log:
+
 [DLQ] Consumer=C1 Event=event-123
 
-Threading Model
+🧵 Threading Model
 
-Uses ExecutorService with a fixed thread pool.
+Uses ExecutorService with fixed thread pool
 
-Ensures high throughput with controlled concurrency.
+Enables controlled concurrency
 
-Graceful shutdown waits for all in-flight tasks to complete before exiting.
+Prevents consumer blocking
 
-# How to Run the Application
+Supports graceful shutdown
+
+## 📂 Project Structure
+src/main/java
+ └── com.zeotap.fanout
+     ├── App.java
+     ├── engine
+     │   └── FanoutEngine.java
+     ├── consumer
+     │   └── EventConsumer.java
+     ├── event
+     │   └── Event.java
+     └── util
+         ├── RetryExecutor.java
+         └── RetryPolicy.java
+
+src/test/java
+ └── com.zeotap.fanout
+     └── FanoutEngineTest.java
+
+🛡️ Non-Functional Considerations
+⚡ Performance
+
+Parallel processing via thread pool
+
+High throughput under load
+
+## 🧯 Fault Tolerance
+
+Retries for transient failures
+
+DLQ for permanent failures
+
+🔒 Reliability
+
+Failure isolation per consumer
+
+Thread-safe design
+
+🛑 Graceful Shutdown
+
+Ensures in-flight tasks complete safely
+
+## ▶️ Build & Run
 Prerequisites
 
-Java 8 or higher
+Java 8+
 
-Maven 3 or higher
+Maven 3+
 
-Run
-mvn clean compile
+Build
+mvn clean package
+
+Run Application
 mvn exec:java
 
-How to Run Tests
+🧪 Run Tests
 mvn clean test
 
-# Expected Result
+
+## ✅ Expected Output:
+
 BUILD SUCCESS
 Tests run: X, Failures: 0, Errors: 0
-
-# Testing Strategy
-
-JUnit 4 is used for unit testing.
-
-Asynchronous behavior is handled using:
-
-AtomicInteger for thread-safe counters.
-
-awaitTermination to ensure background tasks complete.
-
-# Tests validate:
-
-Fanout delivery to all consumers.
-
-Correct parallel execution.
-
-Design Decisions
-
-ExecutorService chosen for controlled concurrency and scalability.
-
-RetryExecutor separates retry logic from business logic.
-
-Immutable RetryPolicy ensures thread safety.
-
-Anonymous consumers in tests improve flexibility and readability.
-
-Graceful shutdown prevents race conditions during testing.
-
-# Future Improvements
-
-Persist DLQ events to a file or database.
-
-Add metrics (processed, retried, failed counts).
-
-Support dynamic consumer registration.
-
-Replace ExecutorService with CompletableFuture for non-blocking execution.
-
-# Conclusion
-
-This fanout engine demonstrates:
-
-Concurrent event processing.
-
-Robust retry and failure handling.
-
-Clean separation of concerns.
-
-Production-ready testing practices.
-
-The solution is simple, extensible, and reliable, and closely resembles real-world event processing systems.
